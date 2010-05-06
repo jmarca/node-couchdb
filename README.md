@@ -13,19 +13,19 @@ To use the library, create a new file called `my-couch-adventure.js`:
 
     var
       sys = require('sys'),
-      couchdb = require('./lib/couchdb.js'),
+      couchdb = require('node-couchdb/lib/couchdb'),
       client = couchdb.createClient(5984, 'localhost'),
       db = client.db('my-db');
 
     db
       .saveDoc('my-doc', {awesome: 'couch fun'}, function(er, ok) {
-        if (er) throw er;
+        if (er) throw new Error(JSON.stringify(er));
         sys.puts('Saved my first doc to the couch!');
       });
 
     db
       .getDoc('my-doc', function(er, doc) {
-        if (er) throw er;
+        if (er) throw new Error(JSON.stringify(er));
         sys.puts('Fetched my new doc from couch:');
         sys.p(doc);
       });
@@ -81,15 +81,17 @@ Takes the path of a `file` and callback receives a JS object suitable for inline
 
     couchdb
       .toAttachment(__filename, function(er, r) {
-        if (er) throw er;
+        if (er) throw new Error(JSON.stringify(er));
         // r => {"content_type":"text/javascript","data":"dmFyCiAgs...="}
       });
 
 Check `lib/dep/mime.js` for a list of recognized file types.
 
-### couchdb.createClient([port, host])
+### couchdb.createClient([port, host, user, pass])
 
 Creates a new `couchdb.Client` for a given `port` (default: `5984`) and `host` (default: `'localhost'`). This client will queue all requests that are send through it, so ordering of requests is always guaranteed. Use multiple clients for parallel operations.
+
+If the optional `user` and `pass` arguments are supplied, all requests will be made with HTTP Basic Authorization
 
 ### client.host
 
@@ -277,7 +279,7 @@ Returns an `events.EventEmitter` stream that emits the following events:
 
 * `data(change)`: Emitted for each change line in the stream. The `change` parameter holds the change object.
 * `heartbeat`: Emitted for each heartbeat send by CouchDB, no need to check this for most stuff.
-* `end(hadError)`: Emitted if the stream ends. This should not happen unless you manually invoke `stream.close()`.
+* `end(hadError)`: Emitted if the stream ends. This should not happen unless you manually invoke `stream.end()`.
 
 See the [CouchDB docs](http://wiki.apache.org/couchdb/HTTP_database_API#Changes) for available `query` parameters.
 
@@ -286,7 +288,6 @@ See the [CouchDB docs](http://wiki.apache.org/couchdb/HTTP_database_API#Changes)
 ## Todo
 
 * http status, message and parsed body for errors
-* toQuery: JSON.encode values except stale=ok
 * db.saveAttachment(file, docId, options) take file descriptor
 * Implement Authentication
 
