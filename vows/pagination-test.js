@@ -63,9 +63,12 @@ vows.
         }
       },
       
-      'with page and per_page options': {
+      'with page and per_page options counting up': {
         topic: function(db) {
-          db.paginate('nice', 'one', {per_page: 10, page: 2}, this.callback);
+          var callback = this.callback;
+          db.paginate('nice', 'one', {per_page: 10, page: 1}, function() {
+            db.paginate('nice', 'one', {per_page: 10, page: 2}, callback);
+          });
         },
         
         'should return 10 results': function(err, response) {
@@ -74,7 +77,55 @@ vows.
         
         'should return the second 10 results': function(err, response) {
           assert.equal(response.rows[0].value, 11);
-          assert.equal(response.rows[1].value, 12);
+          assert.equal(response.rows[9].value, 20);
+        },
+        
+        'till 3': {
+          topic: function() {
+            db.paginate('nice', 'one', {per_page: 10, page: 3}, this.callback);
+          },
+          
+          'should return the 3rd ten results': function(err, response) {
+            assert.equal(response.rows[0].value, 21);
+            assert.equal(response.rows[9].value, 30);            
+          }
+        }
+      },
+      
+      'with page and per_page options counting down': {
+        topic: function(db) {
+          var callback = this.callback;
+          db.paginate('nice', 'one', {per_page: 10, page: 1}, function() {
+            db.paginate('nice', 'one', {per_page: 10, page: 2}, function() {
+              db.paginate('nice', 'one', {per_page: 10, page: 3}, function() {
+                db.paginate('nice', 'one', {per_page: 10, page: 4}, function() {
+                  db.paginate('nice', 'one', {per_page: 10, page: 3}, function() {
+                    db.paginate('nice', 'one', {per_page: 10, page: 2}, callback);
+                  });
+                });
+              });
+            });
+          });
+        },
+        
+        'should return 10 results': function(err, response) {
+          assert.length(response.rows, 10);
+        },
+        
+        'should return the second 10 results': function(err, response) {
+          assert.equal(response.rows[0].value, 20);
+          assert.equal(response.rows[9].value, 11);
+        },
+        
+        'till 1': {
+          topic: function() {
+            db.paginate('nice', 'one', {per_page: 10, page: 1}, this.callback);
+          },
+          
+          'should return the 1st ten results': function(err, response) {
+            assert.equal(response.rows[0].value, 10);
+            assert.equal(response.rows[9].value, 1);
+          }
         }
       },
       
