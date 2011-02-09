@@ -258,9 +258,13 @@ Delete attachment `attachmentId` from doc `docId` with `docRev`.
 
 Loads the attachment `attachmentId` from `docId`. The callback receivesthe binary content of the attachment. There is no streaming, don't use this with large files.
 
-### db.allDocs(query)
+### db.allDocs(post_data, get_data, cb(err, result))
 
-Wrapper for [GET /db-name/\_all\_docs](http://wiki.apache.org/couchdb/HTTP_Document_API#All_Documents). `query` allows to specify options for this view.
+Wrapper for [GET /db-name/\_all\_docs](http://wiki.apache.org/couchdb/HTTP_Document_API#All_Documents). `get_data` allows to specify options for this view, while `post_data` allows you to post as well if you need to post something like {keys: [keys]}. If you want to get the document as well, you can simply pass {include_docs:true} as the `get_data` parameter
+
+### getDocsByKey(keys, cb(err, result))
+
+Convenience method equivalent to db.allDocs({keys: keys}, {include_docs:true}, cb); Note that keys must be an array.
 
 ### db.allDocsBySeq(query)
 
