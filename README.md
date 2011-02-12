@@ -242,6 +242,12 @@ A convenience wrapper for `saveDoc()` that prefixes the document id with `'_desi
         }
       })
 
+### db.getDesign(design, doc)
+
+A convenience wrapper for `getDoc()` that prefixes the document id with `'_design/'+design`.
+
+    db.getDesign('my-design', function(err, design)})
+
 ### db.saveAttachment(file, docId, options)
 
 Attaches a `file` to a given `docId`. Available `options`:
