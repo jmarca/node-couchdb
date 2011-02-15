@@ -18,7 +18,6 @@ var
     I: false,
     J: false,
     K: false,
-    L: false,
     M: false,
     N: false,
     O: false,
@@ -125,14 +124,6 @@ db
     if (er) throw new Error(JSON.stringify(er));
     callbacks.K = true;
     assert.equal(2, r.rows.length);
-  });
-
-// Test allDocsBySeq
-db
-  .allDocsBySeq(function(er, r) {
-    if (er) throw new Error(JSON.stringify(er));
-    callbacks.L = true;
-    assert.ok('rows' in r);
   });
 
 // Test compact
