@@ -1,39 +1,44 @@
-// var vows = require('vows'),
-//   assert = require('assert'),
-//   couchdb = require('../lib/couchdb');
-//   
-// var client = couchdb.createClient(),
-//   db = client.db('node-couchdb-test');
-// 
-// vows.
-//   describe('db').
-//   addBatch({
-//     'changesStream': {
-//       topic: function() {
-//         var callback = this.callback;
-//         db.remove(function() {
-//           db.create(function() {
-//             var stream = db.changesStream();
-//             stream.addListener('data', function(change) {
-//               stream.close();
-//               callback(null, change);
-//             });
-//             db.saveDoc({test: 1});
-//           });
-//         });
-//       },
-//       
-//       'should allow retrieving changes through listeners': function(err, response) {
-//         console.log(response);
-//       }
-//     }
-//   }).
-//   export(module);
+ var vows = require('vows'),
+   assert = require('assert'),
+   couchdb = require('../lib/couchdb');
+   
+ var client = couchdb.createClient(),
+   db = client.db('node-couchdb-test');
 
-  
-  // .addListener('end', function() {
-  //   callbacks.C = true;
-  // })
+ var stream; 
+ vows.
+   describe('db').
+   addBatch({
+     'changesStream': {
+       topic: function() {
+        var callback= this.callback;
+         db.remove(function() {
+           db.create(function() {     
+             stream = db.changesStream();
+             
+             stream.addListener('data', function(changes){callback(null,changes)});
+             
+             db.saveDoc({test: 1});
+           });
+         });
+       },
+       
+       'should allow retrieving changes through listeners': function(err,response) {
+       console.log(typeof response);
+         assert.isObject(response);
+         assert.isTrue(response.seq == 1);
+       }, 
+       'should terminate': { topic: function(err) {
+		       stream.addListener('end', this.callback).close();
+           },
+           'when streams end, with no error': function(error) {
+        	   assert.isFalse(error);
+           }
+       }
+     }
+   }).
+   export(module);
+ 
 
 
 // db.remove();
