@@ -1,3 +1,14 @@
+# IMPORTANT - This module is no longer maintained
+
+I no longer have an active couchdb project, so maintaining this driver has become
+very hard for me. For now I have decided to stop maintainence until either:
+
+* Somebody steps up and wants to become the maintainer
+* I have an active couchdb project again
+
+Meanwhile I can recommend you to watch [this jsconf.eu video](http://jsconf.eu/2010/speaker/nodejs_couchdb_crazy_delicious.html)
+where [Mikeal Rogers](https://github.com/mikeal) from [CouchOne](http://www.couch.io/) looks at the various available modules.
+
 # Node.js CouchDB module
 
 A thin node.js idiom based module for [CouchDB's REST API](http://wiki.apache.org/couchdb/HTTP_REST_API) that tries to stay close to the metal.
@@ -6,14 +17,16 @@ A thin node.js idiom based module for [CouchDB's REST API](http://wiki.apache.or
 
 Installation is simple:
 
-    $ cd ~/.node_libraries
+    $ cd ~/src
     $ git clone git://github.com/felixge/node-couchdb.git
+    $ cd ~/.node_libraries
+    $ ln -s ~/src/node-couchdb couchdb
 
 To use the library, create a new file called `my-couch-adventure.js`:
 
     var
       sys = require('sys'),
-      couchdb = require('node-couchdb/lib/couchdb'),
+      couchdb = require('couchdb'),
       client = couchdb.createClient(5984, 'localhost'),
       db = client.db('my-db');
 
@@ -229,6 +242,12 @@ A convenience wrapper for `saveDoc()` that prefixes the document id with `'_desi
         }
       })
 
+### db.getDesign(design, doc)
+
+A convenience wrapper for `getDoc()` that prefixes the document id with `'_design/'+design`.
+
+    db.getDesign('my-design', function(err, design)})
+
 ### db.saveAttachment(file, docId, options)
 
 Attaches a `file` to a given `docId`. Available `options`:
@@ -245,9 +264,13 @@ Delete attachment `attachmentId` from doc `docId` with `docRev`.
 
 Loads the attachment `attachmentId` from `docId`. The callback receivesthe binary content of the attachment. There is no streaming, don't use this with large files.
 
-### db.allDocs(query)
+### db.allDocs(post_data, get_data, cb(err, result))
 
-Wrapper for [GET /db-name/\_all\_docs](http://wiki.apache.org/couchdb/HTTP_Document_API#All_Documents). `query` allows to specify options for this view.
+Wrapper for [GET /db-name/\_all\_docs](http://wiki.apache.org/couchdb/HTTP_Document_API#All_Documents). `get_data` allows to specify options for this view, while `post_data` allows you to post as well if you need to post something like {keys: [keys]}. If you want to get the document as well, you can simply pass {include_docs:true} as the `get_data` parameter
+
+### getDocsByKey(keys, cb(err, result))
+
+Convenience method equivalent to db.allDocs({keys: keys}, {include_docs:true}, cb); Note that keys must be an array.
 
 ### db.allDocsBySeq(query)
 
@@ -265,9 +288,13 @@ Wrapper for [POST /db-name/\_temp\_view](http://wiki.apache.org/couchdb/HTTP_vie
 
 Wrapper for [POST /db-name/\_view\_cleanup](http://wiki.apache.org/couchdb/HTTP_view_API#View_Cleanup).
 
-### db.view(design, view, [query])
+### db.view(design, view, [query], [cb])
 
 Wrapper for [GET /db-name/\_design/design-name/\_view/view-name](http://wiki.apache.org/couchdb/HTTP_view_API#Access.2BAC8-Query). Fetches all documents for the given `design` and `view` with the specified `query` options.
+
+### db.list(design, list, view, [query], [cb])
+
+Wrapper for [GET /db-name/\_design/design-name/\_list/list-name/view-name](http://wiki.apache.org/couchdb/Formatting_with_Show_and_List#Listing_Views_with_CouchDB_0.10_and_later). Fetches all documents for the given `design` and `view` with the specified `query` options.
 
 ### db.changes([query])
 
